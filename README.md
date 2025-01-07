@@ -50,11 +50,18 @@ This will:
 - Use config from `config.json` (or defaults if missing)
 - Train using `dataset.json` (or defaults if missing)
 - Save training loss plot to `training_loss.png`
+- Output your model name (save it for chat)
 
 2. Chat with the model:
 ```bash
-python use_model.py
+# Replace with your model name from training output
+python use_model.py --model "tunedModels/myassistant-xxx"
 ```
+
+Chat commands:
+- Type your message and press Enter
+- Press Enter without text to skip
+- Type 'quit' to exit
 
 3. List available models:
 ```bash

@@ -43,21 +43,10 @@ def train_model(
         training_data=training_data
     )
 
-    # מעקב אחר התקדמות האימון עם timeout
-    max_wait_time = 3600  # 1 hour timeout
-    start_time = time.time()
-    
     try:
-        while not operation.done():
-            elapsed = time.time() - start_time
-            if elapsed > max_wait_time:
-                raise TimeoutError("Training timed out after 1 hour")
-                
-            print(f"Status: {operation.metadata.state}, Time elapsed: {int(elapsed)}s")
+        # Simplified progress tracking
+        for status in operation.wait_bar():
             time.sleep(30)
-            
-        if operation.error:
-            raise Exception(f"Training failed: {operation.error}")
             
         result = operation.result()
         print(f"\nTraining completed successfully!")

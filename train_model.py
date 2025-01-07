@@ -23,10 +23,13 @@ def create_training_examples() -> List[Dict[str, str]]:
     try:
         with open('dataset.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return data['training_examples']
+            examples = data['training_examples']
+            print(f"Found dataset.json with {len(examples)} training examples")
+            return examples
     except (FileNotFoundError, json.JSONDecodeError, KeyError):
-        print("Using default training examples...")
-        return get_default_examples()
+        default_examples = get_default_examples()
+        print(f"Using {len(default_examples)} default training examples...")
+        return default_examples
 
 def train_model(
     api_key: str,

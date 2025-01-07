@@ -1,0 +1,9 @@
+{
+    "training_params": {
+        "display_name": "my-assistant",
+        "epoch_count": 20,
+        "batch_size": 2,
+        "learning_rate": 0.001,
+        "source_model": "models/gemini-1.5-flash-001-tuning"
+    }
+} 

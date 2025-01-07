@@ -31,25 +31,37 @@ def create_training_examples() -> List[Dict[str, str]]:
         print(f"Using {len(default_examples)} default training examples...")
         return default_examples
 
-def train_model(
-    api_key: str,
-    display_name: str = "my-assistant",
-    epoch_count: int = 20,
-    batch_size: int = 2,
-    learning_rate: float = 0.001
-) -> genai.GenerativeModel:
+def load_config() -> Dict:
+    """Load config from config.json or use defaults"""
+    try:
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+            print("Found config.json")
+            return config['training_params']
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        print("Using default config...")
+        return {
+            "display_name": "my-assistant",
+            "epoch_count": 20,
+            "batch_size": 2,
+            "learning_rate": 0.001,
+            "source_model": "models/gemini-1.5-flash-001-tuning"
+        }
+
+def train_model(api_key: str) -> genai.GenerativeModel:
     """Train a new model"""
     
+    config = load_config()
     genai.configure(api_key=api_key)
     training_data = create_training_examples()
     
     print("Starting model training...")
     operation = genai.create_tuned_model(
-        display_name=display_name,
-        source_model="models/gemini-1.5-flash-001-tuning",
-        epoch_count=epoch_count,
-        batch_size=batch_size,
-        learning_rate=learning_rate,
+        display_name=config["display_name"],
+        source_model=config["source_model"],
+        epoch_count=config["epoch_count"],
+        batch_size=config["batch_size"],
+        learning_rate=config["learning_rate"],
         training_data=training_data
     )
 

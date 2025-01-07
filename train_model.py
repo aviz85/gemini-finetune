@@ -2,24 +2,31 @@ import google.generativeai as genai
 import time
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
+import json
+import os
 from typing import List, Dict
 from dotenv import load_dotenv
-import os
-import matplotlib.pyplot as plt
 
-# טעינת משתני הסביבה מקובץ .env
 load_dotenv()
 
-def create_training_examples() -> List[Dict[str, str]]:
-    """יוצר דוגמאות אימון"""
+def get_default_examples() -> List[Dict[str, str]]:
+    """Default training examples if no dataset file exists"""
     return [
         {"text_input": "מה שמך?", "output": "שמי הוא עוזר AI"},
         {"text_input": "מה אתה יכול לעשות?", "output": "אני יכול לעזור לך במגוון משימות כמו כתיבה, תכנות, וניתוח מידע"},
         {"text_input": "איך אתה יכול לעזור לי?", "output": "אני יכול לסייע בכתיבת קוד, פתרון בעיות תכנות, ניתוח נתונים, ומענה על שאלות"},
-        {"text_input": "באיזו שפה אתה מדבר?", "output": "אני מדבר עברית ויכול לתקשר בשפה זו באופן שוטף"},
-        {"text_input": "מה השעה?", "output": "אני לא יכול לדעת מה השעה הנוכחית כי אין לי גישה לשעון בזמן אמת"},
-        {"text_input": "תספר לי בדיחה", "output": "למה התוכניתן הלך לרופא? כי היה לו באג..."},
     ]
+
+def create_training_examples() -> List[Dict[str, str]]:
+    """Load examples from dataset.json or use defaults"""
+    try:
+        with open('dataset.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data['training_examples']
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        print("Using default training examples...")
+        return get_default_examples()
 
 def train_model(
     api_key: str,
@@ -28,7 +35,7 @@ def train_model(
     batch_size: int = 2,
     learning_rate: float = 0.001
 ) -> genai.GenerativeModel:
-    """מאמן מודל חדש"""
+    """Train a new model"""
     
     genai.configure(api_key=api_key)
     training_data = create_training_examples()
@@ -44,7 +51,6 @@ def train_model(
     )
 
     try:
-        # Simplified progress tracking
         for status in operation.wait_bar():
             time.sleep(30)
             
@@ -69,7 +75,7 @@ def train_model(
         raise
 
 def test_model(model: genai.GenerativeModel, test_input: str) -> str:
-    """בודק את המודל המאומן"""
+    """Test the trained model"""
     result = model.generate_content(test_input)
     return result.text
 
@@ -79,7 +85,5 @@ if __name__ == "__main__":
         raise ValueError("Missing GOOGLE_API_KEY in .env file")
     
     model = train_model(api_key)
-    
-    # בדיקת המודל
     test_result = test_model(model, "מה שמך?")
-    print(f"תשובת המודל: {test_result}") 
+    print(f"Model response: {test_result}") 
